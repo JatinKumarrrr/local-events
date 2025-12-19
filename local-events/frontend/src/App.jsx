@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./layouts/AppLayout";
+import AuthLayout from "./layouts/AuthLayout";
+import DashboardLayout from "./layouts/DashboardLayout";
 import Landing from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
 import Register from "./pages/Register";
@@ -39,20 +42,80 @@ export default function App() {
   };
 
   return (
-    <AppLayout user={user} onLogout={handleLogout}>
-      <Routes>
-        {/* Landing Page */}
-        <Route path="/" element={<Landing />} />
-        
-        {/* Events Routes */}
-        <Route path="/events" element={<Events />} />
-        <Route path="/events/:id" element={<EventDetails user={user} />} />
-        <Route path="/events/create" element={<CreateEvent user={user} />} />
-        
-        {/* Auth Routes */}
-        <Route path="/register" element={<Register onRegister={handleLogin} />} />
-        <Route path="/login" element={<Login onLogin={handleLogin} />} />
-      </Routes>
-    </AppLayout>
+    <Routes>
+      {/* Public Landing Page - AppLayout */}
+      <Route path="/" element={
+        <AppLayout user={user} onLogout={handleLogout}>
+          <Landing />
+        </AppLayout>
+      } />
+
+      {/* Auth Routes - AuthLayout */}
+      <Route path="/register" element={
+        <AuthLayout>
+          <Register onRegister={handleLogin} />
+        </AuthLayout>
+      } />
+      
+      <Route path="/login" element={
+        <AuthLayout>
+          <Login onLogin={handleLogin} />
+        </AuthLayout>
+      } />
+
+      {/* Protected Dashboard Routes - DashboardLayout */}
+      <Route path="/dashboard" element={
+        user ? (
+          <DashboardLayout user={user} onLogout={handleLogout}>
+            <Dashboard user={user} />
+          </DashboardLayout>
+        ) : (
+          <Navigate to="/login" replace />
+        )
+      } />
+
+      <Route path="/events" element={
+        user ? (
+          <DashboardLayout user={user} onLogout={handleLogout}>
+            <Events />
+          </DashboardLayout>
+        ) : (
+          <Navigate to="/login" replace />
+        )
+      } />
+
+      <Route path="/events/:id" element={
+        user ? (
+          <DashboardLayout user={user} onLogout={handleLogout}>
+            <EventDetails user={user} />
+          </DashboardLayout>
+        ) : (
+          <Navigate to="/login" replace />
+        )
+      } />
+
+      <Route path="/events/create" element={
+        user?.role === 'organizer' ? (
+          <DashboardLayout user={user} onLogout={handleLogout}>
+            <CreateEvent user={user} />
+          </DashboardLayout>
+        ) : (
+          <Navigate to="/dashboard" replace />
+        )
+      } />
+
+      <Route path="/my-rsvps" element={
+        user ? (
+          <DashboardLayout user={user} onLogout={handleLogout}>
+            <div className="text-center py-16">
+              <h1 className="text-3xl font-display font-bold text-slate-900 mb-4">My RSVPs</h1>
+              <p className="text-slate-600">Coming soon! You'll see all your event bookings here.</p>
+            </div>
+          </DashboardLayout>
+        ) : (
+          <Navigate to="/login" replace />
+        )
+      } />
+    </Routes>
   );
 }

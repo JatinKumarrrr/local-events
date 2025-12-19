@@ -1,15 +1,20 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/api";
-
+import { HiCalendar, HiLocationMarker, HiUsers, HiDocumentText, HiTag } from "react-icons/hi";
 
 export default function CreateEvent({ user }) {
   const nav = useNavigate();
 
-  
   if (!user || user.role !== "organizer") {
-    return <div style={{ padding: 20 }}>Access denied — organizer only</div>;
+    return (
+      <div className="max-w-2xl mx-auto text-center py-20">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-8">
+          <h2 className="text-2xl font-display font-bold text-slate-900 mb-2">Access Denied</h2>
+          <p className="text-slate-600">Only organizers can create events.</p>
+        </div>
+      </div>
+    );
   }
 
   const [title, setTitle] = useState("");
@@ -17,11 +22,14 @@ export default function CreateEvent({ user }) {
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
   const [maxAttendees, setMaxAttendees] = useState("");
+  const [category, setCategory] = useState("");
   const [saving, setSaving] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
     setSaving(true);
+    console.log("📝 Creating event:", { title, date, location });
+    
     try {
       const payload = {
         title,
@@ -29,11 +37,14 @@ export default function CreateEvent({ user }) {
         date: new Date(date).toISOString(),
         location,
         maxAttendees: maxAttendees ? parseInt(maxAttendees, 10) : undefined,
+        category: category || undefined,
       };
+      
       const created = await api.post("/events", payload);
-      alert("Event created");
+      console.log("✅ Event created:", created);
       nav(`/events/${created._id}`);
     } catch (err) {
+      console.error("❌ Failed to create event:", err);
       alert(err.data?.msg || err.message || "Failed to create");
     } finally {
       setSaving(false);
@@ -41,30 +52,165 @@ export default function CreateEvent({ user }) {
   };
 
   return (
-    <div style={{ maxWidth: 700, margin: "20px auto", background: "#fff", padding: 16, borderRadius: 8 }}>
-      <h2>Create Event</h2>
-      <form onSubmit={submit}>
-        <label>Title</label>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} required />
+    <div className="max-w-3xl mx-auto">
+      
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-display font-bold text-slate-900 mb-2">Create New Event</h1>
+        <p className="text-slate-600">Fill in the details to create an amazing event for your community</p>
+      </div>
 
-        <label>Description</label>
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
+      {/* Form Card */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-8">
+        <form onSubmit={submit} className="space-y-6">
+          
+          {/* Title */}
+          <div>
+            <label htmlFor="title" className="block text-sm font-semibold text-slate-900 mb-2">
+              Event Title *
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <HiTag className="h-5 w-5 text-slate-400" />
+              </div>
+              <input
+                id="title"
+                type="text"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Summer Music Festival"
+                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none"
+              />
+            </div>
+          </div>
 
-        <label>Date & time</label>
-        <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} required />
+          {/* Description */}
+          <div>
+            <label htmlFor="description" className="block text-sm font-semibold text-slate-900 mb-2">
+              Description
+            </label>
+            <div className="relative">
+              <div className="absolute top-3 left-3 pointer-events-none">
+                <HiDocumentText className="h-5 w-5 text-slate-400" />
+              </div>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Tell people about your event..."
+                rows={5}
+                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none resize-none"
+              />
+            </div>
+            <p className="mt-1 text-xs text-slate-500">Optional: Provide more details about the event</p>
+          </div>
 
-        <label>Location</label>
-        <input value={location} onChange={(e) => setLocation(e.target.value)} required />
+          {/* Date & Time */}
+          <div>
+            <label htmlFor="date" className="block text-sm font-semibold text-slate-900 mb-2">
+              Date & Time *
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <HiCalendar className="h-5 w-5 text-slate-400" />
+              </div>
+              <input
+                id="date"
+                type="datetime-local"
+                required
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none"
+              />
+            </div>
+          </div>
 
-        <label>Max Attendees</label>
-        <input type="number" value={maxAttendees} onChange={(e) => setMaxAttendees(e.target.value)} />
+          {/* Location */}
+          <div>
+            <label htmlFor="location" className="block text-sm font-semibold text-slate-900 mb-2">
+              Location *
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <HiLocationMarker className="h-5 w-5 text-slate-400" />
+              </div>
+              <input
+                id="location"
+                type="text"
+                required
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g., Central Park, New York"
+                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none"
+              />
+            </div>
+          </div>
 
-        <div style={{ marginTop: 12 }}>
-          <button type="submit" disabled={saving} style={{ padding: "8px 12px", background: "#0f62fe", color: "#fff", border: 0, borderRadius: 6 }}>
-            {saving ? "Creating..." : "Create Event"}
-          </button>
-        </div>
-      </form>
+          {/* Category */}
+          <div>
+            <label htmlFor="category" className="block text-sm font-semibold text-slate-900 mb-2">
+              Category
+            </label>
+            <select
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none"
+            >
+              <option value="">Select a category...</option>
+              <option value="Business">Business</option>
+              <option value="Music">Music</option>
+              <option value="Sports">Sports</option>
+              <option value="Arts">Arts</option>
+              <option value="Workshops">Workshops</option>
+              <option value="Meetups">Meetups</option>
+              <option value="Community">Community</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          {/* Max Attendees */}
+          <div>
+            <label htmlFor="maxAttendees" className="block text-sm font-semibold text-slate-900 mb-2">
+              Maximum Attendees
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <HiUsers className="h-5 w-5 text-slate-400" />
+              </div>
+              <input
+                id="maxAttendees"
+                type="number"
+                min="1"
+                value={maxAttendees}
+                onChange={(e) => setMaxAttendees(e.target.value)}
+                placeholder="Leave empty for unlimited"
+                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none"
+              />
+            </div>
+            <p className="mt-1 text-xs text-slate-500">Optional: Set a capacity limit for your event</p>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex gap-4 pt-4">
+            <button
+              type="button"
+              onClick={() => nav('/events')}
+              className="px-6 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 py-3 px-6 bg-slate-900 text-white rounded-lg hover:bg-slate-800 font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? "Creating Event..." : "Create Event"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
