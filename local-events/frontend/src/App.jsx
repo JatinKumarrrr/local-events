@@ -11,6 +11,8 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import CreateEvent from "./pages/CreateEvent";
 import EditEvent from "./pages/EditEvent";
+import MyRSVPs from "./pages/MyRSVPs";
+import Attendees from "./pages/Attendees";
 
 export default function App() {
   const [user, setUser] = useState(() => {
@@ -140,20 +142,25 @@ export default function App() {
           )
         }
       />
+      <Route
+        path="/events/:id/attendees"
+        element={
+          user?.role === "organizer" ? (
+            <DashboardLayout user={user} onLogout={handleLogout}>
+              <Attendees user={user} />
+            </DashboardLayout>
+          ) : (
+            <Navigate to="/dashboard" replace />
+          )
+        }
+      />
 
       <Route
         path="/my-rsvps"
         element={
           user ? (
             <DashboardLayout user={user} onLogout={handleLogout}>
-              <div className="text-center py-16">
-                <h1 className="text-3xl font-display font-bold text-slate-900 mb-4">
-                  My RSVPs
-                </h1>
-                <p className="text-slate-600">
-                  Coming soon! You'll see all your event bookings here.
-                </p>
-              </div>
+              <MyRSVPs user={user} />
             </DashboardLayout>
           ) : (
             <Navigate to="/login" replace />

@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../api/api";
 import { Link } from "react-router-dom";
-import { HiSearch, HiCalendar, HiLocationMarker, HiUsers, HiFilter, HiX } from "react-icons/hi";
+import {
+  HiSearch,
+  HiCalendar,
+  HiLocationMarker,
+  HiUsers,
+  HiFilter,
+  HiX,
+} from "react-icons/hi";
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -41,12 +48,15 @@ export default function Events() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900">All Events</h1>
-          <p className="text-slate-600 mt-1">Discover amazing events happening around you</p>
+          <h1 className="text-3xl font-display font-bold text-slate-900">
+            All Events
+          </h1>
+          <p className="text-slate-600 mt-1">
+            Discover amazing events happening around you
+          </p>
         </div>
       </div>
 
@@ -78,7 +88,7 @@ export default function Events() {
                 placeholder="Search events by title..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && loadEvents()}
+                onKeyPress={(e) => e.key === "Enter" && loadEvents()}
                 className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none"
               />
             </div>
@@ -95,7 +105,7 @@ export default function Events() {
                 placeholder="Filter by city..."
                 value={cityFilter}
                 onChange={(e) => setCityFilter(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && loadEvents()}
+                onKeyPress={(e) => e.key === "Enter" && loadEvents()}
                 className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none"
               />
             </div>
@@ -118,7 +128,11 @@ export default function Events() {
       {!loading && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-slate-600">
-            Found <span className="font-semibold text-slate-900">{events.length}</span> events
+            Found{" "}
+            <span className="font-semibold text-slate-900">
+              {events.length}
+            </span>{" "}
+            events
           </p>
         </div>
       )}
@@ -133,67 +147,104 @@ export default function Events() {
       {/* Events Grid */}
       {!loading && events.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((ev) => (
-            <Link
-              key={ev._id}
-              to={`/events/${ev._id}`}
-              className="group bg-white rounded-xl border border-slate-200 hover:border-amber-300 hover:shadow-lg transition-all overflow-hidden"
-            >
-              {/* Event Card Header - Date Badge */}
-              <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4">
-                <div className="flex items-center justify-between text-white">
-                  <div className="flex items-center gap-2">
-                    <HiCalendar className="w-5 h-5" />
-                    <span className="font-semibold text-sm">
-                      {new Date(ev.date).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric',
-                        year: 'numeric'
+          {events.map((ev) => {
+            const isPastEvent = new Date(ev.date) < new Date();
+
+            return (
+              <Link
+                key={ev._id}
+                to={`/events/${ev._id}`}
+                className={`group bg-white rounded-xl border hover:shadow-lg transition-all overflow-hidden ${
+                  isPastEvent
+                    ? "border-slate-300 opacity-75"
+                    : "border-slate-200 hover:border-amber-300"
+                }`}
+              >
+                {/* Event Card Header - Date Badge */}
+                <div
+                  className={`p-4 relative ${
+                    isPastEvent
+                      ? "bg-gradient-to-r from-slate-400 to-slate-500"
+                      : "bg-gradient-to-r from-amber-500 to-orange-500"
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-white">
+                    <div className="flex items-center gap-2">
+                      <HiCalendar className="w-5 h-5" />
+                      <span className="font-semibold text-sm">
+                        {new Date(ev.date).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+                    <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
+                      {new Date(ev.date).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </span>
                   </div>
-                  <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
-                    {new Date(ev.date).toLocaleTimeString('en-US', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
-                  </span>
-                </div>
-              </div>
 
-              {/* Event Card Body */}
-              <div className="p-5 space-y-3">
-                <h3 className="text-lg font-display font-bold text-slate-900 group-hover:text-amber-600 transition-colors line-clamp-2">
-                  {ev.title}
-                </h3>
-
-                {ev.description && (
-                  <p className="text-sm text-slate-600 line-clamp-2">
-                    {ev.description}
-                  </p>
-                )}
-
-                <div className="flex items-center gap-2 text-sm text-slate-500">
-                  <HiLocationMarker className="w-4 h-4 flex-shrink-0" />
-                  <span className="truncate">{ev.location}</span>
+                  {/* ENDED Badge - NEW */}
+                  {isPastEvent && (
+                    <div className="absolute top-2 left-2">
+                      <span className="px-3 py-1 bg-slate-900 text-white text-xs font-bold rounded-full shadow-lg">
+                        ENDED
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <HiUsers className="w-4 h-4" />
-                    <span className="font-medium">{ev.rsvps?.length || 0}</span>
-                    {ev.maxAttendees && (
-                      <span className="text-slate-400">/ {ev.maxAttendees}</span>
-                    )}
+                {/* Event Card Body */}
+                <div className="p-5 space-y-3">
+                  <h3
+                    className={`text-lg font-display font-bold transition-colors line-clamp-2 ${
+                      isPastEvent
+                        ? "text-slate-600"
+                        : "text-slate-900 group-hover:text-amber-600"
+                    }`}
+                  >
+                    {ev.title}
+                  </h3>
+
+                  {ev.description && (
+                    <p className="text-sm text-slate-600 line-clamp-2">
+                      {ev.description}
+                    </p>
+                  )}
+
+                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                    <HiLocationMarker className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{ev.location}</span>
                   </div>
 
-                  <span className="text-sm font-semibold text-amber-600 group-hover:translate-x-1 transition-transform">
-                    View Details →
-                  </span>
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                      <HiUsers className="w-4 h-4" />
+                      <span className="font-medium">
+                        {ev.rsvps?.length || 0}
+                      </span>
+                      {ev.maxAttendees && (
+                        <span className="text-slate-400">
+                          / {ev.maxAttendees}
+                        </span>
+                      )}
+                    </div>
+
+                    <span
+                      className={`text-sm font-semibold group-hover:translate-x-1 transition-transform ${
+                        isPastEvent ? "text-slate-500" : "text-amber-600"
+                      }`}
+                    >
+                      View Details →
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       )}
 
@@ -203,10 +254,12 @@ export default function Events() {
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <HiCalendar className="w-8 h-8 text-slate-400" />
           </div>
-          <h3 className="text-xl font-display font-bold text-slate-900 mb-2">No events found</h3>
+          <h3 className="text-xl font-display font-bold text-slate-900 mb-2">
+            No events found
+          </h3>
           <p className="text-slate-600 mb-6">
-            {hasFilters 
-              ? "Try adjusting your search filters to find more events." 
+            {hasFilters
+              ? "Try adjusting your search filters to find more events."
               : "Be the first to create an event for your community!"}
           </p>
           {hasFilters && (

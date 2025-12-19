@@ -1,7 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../api/api";
-import { HiCalendar, HiLocationMarker, HiUsers, HiUser, HiMail, HiArrowLeft, HiCheckCircle, HiXCircle, HiPencil, HiTrash } from "react-icons/hi";
+import {
+  HiCalendar,
+  HiLocationMarker,
+  HiUsers,
+  HiUser,
+  HiMail,
+  HiArrowLeft,
+  HiCheckCircle,
+  HiXCircle,
+  HiPencil,
+  HiTrash,
+} from "react-icons/hi";
 
 export default function EventDetails({ user }) {
   const { id } = useParams();
@@ -60,17 +71,17 @@ export default function EventDetails({ user }) {
     const confirmed = window.confirm(
       "⚠️ Are you sure you want to delete this event?\n\nThis will:\n• Remove the event permanently\n• Cancel all RSVPs\n• This action cannot be undone"
     );
-    
+
     if (!confirmed) return;
-    
+
     setActionLoading(true);
     console.log("🗑️ Deleting event:", id);
-    
+
     try {
       await api.del(`/events/${id}`);
       console.log("✅ Event deleted successfully");
       alert("✅ Event deleted successfully!");
-      navigate('/events');
+      navigate("/events");
     } catch (err) {
       console.error("❌ Failed to delete event:", err);
       alert(err.data?.msg || err.message || "Failed to delete event");
@@ -98,10 +109,14 @@ export default function EventDetails({ user }) {
           <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
             <HiCalendar className="w-8 h-8 text-slate-400" />
           </div>
-          <h2 className="text-2xl font-display font-bold text-slate-900 mb-2">Event Not Found</h2>
-          <p className="text-slate-600 mb-6">This event might have been deleted or doesn't exist.</p>
+          <h2 className="text-2xl font-display font-bold text-slate-900 mb-2">
+            Event Not Found
+          </h2>
+          <p className="text-slate-600 mb-6">
+            This event might have been deleted or doesn't exist.
+          </p>
           <button
-            onClick={() => navigate('/events')}
+            onClick={() => navigate("/events")}
             className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 font-medium transition-all"
           >
             Browse All Events
@@ -115,16 +130,28 @@ export default function EventDetails({ user }) {
     (r) => r.user?._id === user?.id || r.user === user?.id
   );
 
-  const isFull = eventData.maxAttendees && eventData.rsvps?.length >= eventData.maxAttendees;
+  const isFull =
+    eventData.maxAttendees && eventData.rsvps?.length >= eventData.maxAttendees;
   const isOrganizer = eventData.organizer?._id === user?.id;
-  const isPastEvent = new Date(eventData.date) < new Date();
+const isPastEvent = new Date(eventData.date) < new Date();
+
+// ADD THIS DEBUG CODE:
+console.log('🔍 Debug RSVP Check:', {
+  'Current User ID': user?.id,
+  'Current User _id': user?._id,
+  'Event Organizer _id': eventData.organizer?._id,
+  'isOrganizer': isOrganizer,
+  'isRsvped': isRsvped,
+  'User Role': user?.role,
+  'Should Show RSVP Button': user && !isOrganizer && !isRsvped
+});
+
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      
       {/* Back Button */}
       <button
-        onClick={() => navigate('/events')}
+        onClick={() => navigate("/events")}
         className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium transition-colors group"
       >
         <HiArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
@@ -140,17 +167,17 @@ export default function EventDetails({ user }) {
             </div>
             <div>
               <p className="text-amber-50 text-sm font-medium mb-1">
-                {new Date(eventData.date).toLocaleDateString('en-US', { 
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
+                {new Date(eventData.date).toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
                 })}
               </p>
               <p className="text-2xl font-bold">
-                {new Date(eventData.date).toLocaleTimeString('en-US', { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
+                {new Date(eventData.date).toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </p>
               {isPastEvent && (
@@ -168,7 +195,7 @@ export default function EventDetails({ user }) {
                 <span className="font-semibold text-sm">You're Going!</span>
               </div>
             )}
-            
+
             {isOrganizer && (
               <div className="bg-blue-500 px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg">
                 <HiUser className="w-5 h-5" />
@@ -203,10 +230,8 @@ export default function EventDetails({ user }) {
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
-        
         {/* Main Content */}
         <div className="md:col-span-2 space-y-6">
-          
           {/* Description Card */}
           <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
             <h2 className="text-xl font-display font-bold text-slate-900 mb-4 flex items-center gap-2">
@@ -218,7 +243,9 @@ export default function EventDetails({ user }) {
                 {eventData.description}
               </p>
             ) : (
-              <p className="text-slate-400 italic">No description provided for this event.</p>
+              <p className="text-slate-400 italic">
+                No description provided for this event.
+              </p>
             )}
           </div>
 
@@ -233,10 +260,15 @@ export default function EventDetails({ user }) {
                 <HiUser className="w-8 h-8 text-amber-600" />
               </div>
               <div>
-                <p className="font-semibold text-slate-900 text-lg">{eventData.organizer?.name}</p>
+                <p className="font-semibold text-slate-900 text-lg">
+                  {eventData.organizer?.name}
+                </p>
                 <div className="flex items-center gap-2 text-slate-600 text-sm mt-1">
                   <HiMail className="w-4 h-4" />
-                  <a href={`mailto:${eventData.organizer?.email}`} className="hover:text-amber-600 transition-colors">
+                  <a
+                    href={`mailto:${eventData.organizer?.email}`}
+                    className="hover:text-amber-600 transition-colors"
+                  >
                     {eventData.organizer?.email}
                   </a>
                 </div>
@@ -249,7 +281,9 @@ export default function EventDetails({ user }) {
             <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl border border-slate-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-600 font-medium mb-1">Total Attendees</p>
+                  <p className="text-sm text-slate-600 font-medium mb-1">
+                    Total Attendees
+                  </p>
                   <p className="text-3xl font-display font-bold text-slate-900">
                     {eventData.rsvps.length}
                   </p>
@@ -264,12 +298,13 @@ export default function EventDetails({ user }) {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          
           {/* RSVP Card */}
           {!isPastEvent && (
             <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm sticky top-6">
-              <h3 className="font-display font-bold text-slate-900 mb-4">Event Status</h3>
-              
+              <h3 className="font-display font-bold text-slate-900 mb-4">
+                Event Status
+              </h3>
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-600">Attendees</span>
@@ -283,15 +318,23 @@ export default function EventDetails({ user }) {
                 {eventData.maxAttendees && (
                   <div className="space-y-2">
                     <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                      <div 
+                      <div
                         className={`h-full rounded-full transition-all ${
-                          isFull ? 'bg-red-500' : 'bg-amber-500'
+                          isFull ? "bg-red-500" : "bg-amber-500"
                         }`}
-                        style={{ width: `${Math.min((eventData.rsvps?.length / eventData.maxAttendees) * 100, 100)}%` }}
+                        style={{
+                          width: `${Math.min(
+                            (eventData.rsvps?.length / eventData.maxAttendees) *
+                              100,
+                            100
+                          )}%`,
+                        }}
                       />
                     </div>
                     {isFull && (
-                      <p className="text-xs text-red-600 font-medium">Event is at full capacity</p>
+                      <p className="text-xs text-red-600 font-medium">
+                        Event is at full capacity
+                      </p>
                     )}
                   </div>
                 )}
@@ -305,9 +348,11 @@ export default function EventDetails({ user }) {
 
                 {!user && (
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
-                    <p className="text-sm text-amber-900 mb-3">Please login to RSVP</p>
+                    <p className="text-sm text-amber-900 mb-3">
+                      Please login to RSVP
+                    </p>
                     <button
-                      onClick={() => navigate('/login')}
+                      onClick={() => navigate("/login")}
                       className="w-full py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 font-medium transition-all"
                     >
                       Login
@@ -321,7 +366,11 @@ export default function EventDetails({ user }) {
                     disabled={actionLoading || isFull}
                     className="w-full py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow"
                   >
-                    {actionLoading ? "Processing..." : isFull ? "Event Full" : "RSVP Now"}
+                    {actionLoading
+                      ? "Processing..."
+                      : isFull
+                      ? "Event Full"
+                      : "RSVP Now"}
                   </button>
                 )}
 
@@ -338,7 +387,9 @@ export default function EventDetails({ user }) {
                 {isOrganizer && (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
                     <HiCheckCircle className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                    <p className="text-sm text-blue-900 font-medium">You're the organizer</p>
+                    <p className="text-sm text-blue-900 font-medium">
+                      You're the organizer
+                    </p>
                   </div>
                 )}
               </div>
@@ -346,11 +397,23 @@ export default function EventDetails({ user }) {
           )}
 
           {/* Organizer Actions Card */}
+          {/* Organizer Actions Card */}
           {isOrganizer && (
             <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-              <h3 className="font-display font-bold text-slate-900 mb-4">Manage Event</h3>
-              
+              <h3 className="font-display font-bold text-slate-900 mb-4">
+                Manage Event
+              </h3>
+
               <div className="space-y-3">
+                {/* View Attendees Button - NEW */}
+                <button
+                  onClick={() => navigate(`/events/${id}/attendees`)}
+                  className="w-full py-3 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium transition-all inline-flex items-center justify-center gap-2 shadow-sm hover:shadow"
+                >
+                  <HiUsers className="w-5 h-5" />
+                  View Attendees ({eventData.rsvps?.length || 0})
+                </button>
+
                 <button
                   onClick={() => navigate(`/events/${id}/edit`)}
                   className="w-full py-3 px-4 bg-amber-500 text-white rounded-lg hover:bg-amber-600 font-medium transition-all inline-flex items-center justify-center gap-2 shadow-sm hover:shadow"
@@ -376,7 +439,9 @@ export default function EventDetails({ user }) {
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-slate-600">Event ID</span>
-                <span className="font-mono text-xs text-slate-400">{eventData._id.slice(-8)}</span>
+                <span className="font-mono text-xs text-slate-400">
+                  {eventData._id.slice(-8)}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-600">Created</span>
