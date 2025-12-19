@@ -10,11 +10,15 @@ import EventDetails from "./pages/EventDetails";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import CreateEvent from "./pages/CreateEvent";
+import EditEvent from "./pages/EditEvent";
 
 export default function App() {
   const [user, setUser] = useState(() => {
     const raw = localStorage.getItem("user");
-    console.log("🔐 App initialized - User from localStorage:", raw ? JSON.parse(raw) : null);
+    console.log(
+      "🔐 App initialized - User from localStorage:",
+      raw ? JSON.parse(raw) : null
+    );
     return raw ? JSON.parse(raw) : null;
   });
 
@@ -44,78 +48,118 @@ export default function App() {
   return (
     <Routes>
       {/* Public Landing Page - AppLayout */}
-      <Route path="/" element={
-        <AppLayout user={user} onLogout={handleLogout}>
-          <Landing />
-        </AppLayout>
-      } />
+      <Route
+        path="/"
+        element={
+          <AppLayout user={user} onLogout={handleLogout}>
+            <Landing />
+          </AppLayout>
+        }
+      />
 
       {/* Auth Routes - AuthLayout */}
-      <Route path="/register" element={
-        <AuthLayout>
-          <Register onRegister={handleLogin} />
-        </AuthLayout>
-      } />
-      
-      <Route path="/login" element={
-        <AuthLayout>
-          <Login onLogin={handleLogin} />
-        </AuthLayout>
-      } />
+      <Route
+        path="/register"
+        element={
+          <AuthLayout>
+            <Register onRegister={handleLogin} />
+          </AuthLayout>
+        }
+      />
+
+      <Route
+        path="/login"
+        element={
+          <AuthLayout>
+            <Login onLogin={handleLogin} />
+          </AuthLayout>
+        }
+      />
 
       {/* Protected Dashboard Routes - DashboardLayout */}
-      <Route path="/dashboard" element={
-        user ? (
-          <DashboardLayout user={user} onLogout={handleLogout}>
-            <Dashboard user={user} />
-          </DashboardLayout>
-        ) : (
-          <Navigate to="/login" replace />
-        )
-      } />
+      <Route
+        path="/dashboard"
+        element={
+          user ? (
+            <DashboardLayout user={user} onLogout={handleLogout}>
+              <Dashboard user={user} />
+            </DashboardLayout>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
 
-      <Route path="/events" element={
-        user ? (
-          <DashboardLayout user={user} onLogout={handleLogout}>
-            <Events />
-          </DashboardLayout>
-        ) : (
-          <Navigate to="/login" replace />
-        )
-      } />
+      <Route
+        path="/events"
+        element={
+          user ? (
+            <DashboardLayout user={user} onLogout={handleLogout}>
+              <Events />
+            </DashboardLayout>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
 
-      <Route path="/events/:id" element={
-        user ? (
-          <DashboardLayout user={user} onLogout={handleLogout}>
-            <EventDetails user={user} />
-          </DashboardLayout>
-        ) : (
-          <Navigate to="/login" replace />
-        )
-      } />
+      <Route
+        path="/events/:id"
+        element={
+          user ? (
+            <DashboardLayout user={user} onLogout={handleLogout}>
+              <EventDetails user={user} />
+            </DashboardLayout>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
 
-      <Route path="/events/create" element={
-        user?.role === 'organizer' ? (
-          <DashboardLayout user={user} onLogout={handleLogout}>
-            <CreateEvent user={user} />
-          </DashboardLayout>
-        ) : (
-          <Navigate to="/dashboard" replace />
-        )
-      } />
+      <Route
+        path="/events/create"
+        element={
+          user?.role === "organizer" ? (
+            <DashboardLayout user={user} onLogout={handleLogout}>
+              <CreateEvent user={user} />
+            </DashboardLayout>
+          ) : (
+            <Navigate to="/dashboard" replace />
+          )
+        }
+      />
+      <Route
+        path="/events/:id/edit"
+        element={
+          user?.role === "organizer" ? (
+            <DashboardLayout user={user} onLogout={handleLogout}>
+              <EditEvent user={user} />
+            </DashboardLayout>
+          ) : (
+            <Navigate to="/dashboard" replace />
+          )
+        }
+      />
 
-      <Route path="/my-rsvps" element={
-        user ? (
-          <DashboardLayout user={user} onLogout={handleLogout}>
-            <div className="text-center py-16">
-              <h1 className="text-3xl font-display font-bold text-slate-900 mb-4">My RSVPs</h1>
-              <p className="text-slate-600">Coming soon! You'll see all your event bookings here.</p>
-            </div>
-          </DashboardLayout>
-        ) : (
-          <Navigate to="/login" replace />
-        )
-      } />
+      <Route
+        path="/my-rsvps"
+        element={
+          user ? (
+            <DashboardLayout user={user} onLogout={handleLogout}>
+              <div className="text-center py-16">
+                <h1 className="text-3xl font-display font-bold text-slate-900 mb-4">
+                  My RSVPs
+                </h1>
+                <p className="text-slate-600">
+                  Coming soon! You'll see all your event bookings here.
+                </p>
+              </div>
+            </DashboardLayout>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
     </Routes>
   );
 }
